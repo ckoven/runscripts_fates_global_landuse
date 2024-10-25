@@ -1,1 +1,1 @@
-# runscripts_fates_global_landuse
+# These are some shell scripts that set things up to do global ELM-FATES simulations with historical land use change.
