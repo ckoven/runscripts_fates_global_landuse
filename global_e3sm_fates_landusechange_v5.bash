@@ -16,7 +16,7 @@ if [ "$STAGE" = "AD_SPINUP" ]; then
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     SETUP_CASE=fates_4x5_nocomp_0006_bgcpostadspinup_v5noseedrain
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0006_translanduse1700_frompotentialveg_v6noseedrain
+    SETUP_CASE=fates_4x5_nocomp_0006_translanduse1750_frompotentialveg_v6noseedrain
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -118,7 +118,7 @@ EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
 
-    ./xmlchange RUN_STARTDATE=1700-01-01
+    ./xmlchange RUN_STARTDATE=1750-01-01
     ./xmlchange RESUBMIT=1
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
