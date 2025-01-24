@@ -6,17 +6,17 @@ GITHASH1=`git log -n 1 --format=%h`
 cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
-#STAGE=AD_SPINUP
+STAGE=AD_SPINUP
 #STAGE=POSTAD_SPINUP
-STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
+#STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0006_bgcspinup_v5noseedrain_frombareground
+    SETUP_CASE=fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_ddd3
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0006_bgcpostadspinup_v5noseedrain
+    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_v5noseedrain
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0006_translanduse1750_frompotentialveg_v6noseedrain
+    SETUP_CASE=fates_4x5_nocomp_0009_translanduse1750_frompotentialveg_v6noseedrain
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -49,13 +49,15 @@ ncgen -o fates_params_default_${GITHASH2}.nc ${SRCDIR}/external_models/fates/par
 # fates_harvest_mode = 'no_harvest'
 # fates_harvest_mode = 'luhdata_area'
 
+./xmlchange RUN_STARTDATE=0100-01-01  ## because taking a prior run's restart file in AD mode, so need to circumvent the 20 year thing
+
 if [ "$STAGE" = "AD_SPINUP"  ]; then
 
     ./xmlchange RUN_STARTDATE=0001-01-01
     ./xmlchange RESUBMIT=1
     ./xmlchange ELM_ACCELERATED_SPINUP=on
     ./xmlchange -id ELM_BLDNML_OPTS -val "-bgc fates -no-megan -no-drydep -bgc_spinup on"
-    ./xmlchange NTASKS=-3
+    ./xmlchange NTASKS=-5
     ./xmlchange STOP_N=30
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
@@ -63,6 +65,10 @@ if [ "$STAGE" = "AD_SPINUP"  ]; then
     ./xmlchange JOB_WALLCLOCK_TIME=06:00:00
     ./xmlchange CCSM_CO2_PPMV=287.
     
+    ./xmlchange DATM_MODE=CLMCRUNCEP
+    ./xmlchange DATM_CLMNCEP_YR_START=1901
+    ./xmlchange DATM_CLMNCEP_YR_END=1920
+    ./xmlchange DATM_PRESAERO=clim_1850
 
     cat > user_nl_elm <<EOF
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
@@ -79,6 +85,10 @@ use_century_decomp = .true.
 spinup_state = 1
 suplphos = 'ALL'
 suplnitro = 'ALL'
+fates_parteh_mode = 2
+nu_com = 'RD'
+paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
+finidat = '/global/homes/c/cdkoven/scratch/e3sm_scratch/pm-cpu/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_6a011c67ac_96ae462e/run/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_6a011c67ac_96ae462e.elm.r.0341-01-01-00000.nc'
 EOF
 
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
@@ -86,7 +96,7 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     ./xmlchange RUN_STARTDATE=0001-01-01
     ./xmlchange RESUBMIT=0
     ./xmlchange ELM_ACCELERATED_SPINUP=off
-    ./xmlchange NTASKS=-3
+    ./xmlchange NTASKS=-5
     ./xmlchange STOP_N=1
     ./xmlchange REST_N=1
     ./xmlchange STOP_OPTION=nyears
@@ -99,6 +109,11 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     # #./xmlchange RUN_REFDIR=~/scratch/restfiles/
     # ./xmlchange RUN_REFDATE=0261-01-01
     # ./xmlchange GET_REFCASE=FALSE
+
+    ./xmlchange DATM_MODE=ELMGSWP3w5e5
+    ./xmlchange DATM_CLMNCEP_YR_START=1901
+    ./xmlchange DATM_CLMNCEP_YR_END=1920
+    ./xmlchange DATM_PRESAERO=clim_1850
 
 
     cat > user_nl_elm <<EOF
@@ -117,6 +132,8 @@ use_century_decomp = .true.
 spinup_state = 0
 suplphos = 'ALL'
 suplnitro = 'ALL'
+fates_parteh_mode = 2
+nu_com = 'rd'
 EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
