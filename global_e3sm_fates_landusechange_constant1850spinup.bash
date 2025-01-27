@@ -6,15 +6,15 @@ GITHASH1=`git log -n 1 --format=%h`
 cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
-STAGE=AD_SPINUP
-#STAGE=POSTAD_SPINUP
+#STAGE=AD_SPINUP
+STAGE=POSTAD_SPINUP
 #STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
     SETUP_CASE=fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu
+    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu_ddd3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
     SETUP_CASE=fates_4x5_nocomp_0009_translanduse_fromconst1850lu
 fi
@@ -97,12 +97,12 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     ./xmlchange RESUBMIT=0
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
-    ./xmlchange STOP_N=15
+    ./xmlchange STOP_N=20
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
-    ./xmlchange JOB_QUEUE=regular
+    ./xmlchange JOB_QUEUE=debug
     ./xmlchange CCSM_CO2_PPMV=287.
-    ./xmlchange JOB_WALLCLOCK_TIME=06:00:00
+    ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
 
     # ./xmlchange RUN_TYPE=hybrid
     # ./xmlchange RUN_REFCASE=fates_e3sm_perlmttr_fullmodel_4x5_test_landuse_nocomp_startfrompotentialveg_0006_bgcspinup_v1_377b2d31d7_ed007e30
@@ -119,7 +119,7 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
 
     cat > user_nl_elm <<EOF
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
-finidat='/global/homes/c/cdkoven/scratch/e3sm_scratch/pm-cpu/fates_4x5_nocomp_0006_bgcspinup_v5noseedrain_frombareground_9b13649222_c3966e87/run/fates_4x5_nocomp_0006_bgcspinup_v5noseedrain_frombareground_9b13649222_c3966e87.elm.r.0261-01-01-00000.nc'
+finidat='/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3_6a011c67ac_cbfefff9.elm.r.0130-01-01-00000.nc'
 use_fates_luh = .true.
 use_fates_nocomp = .true.
 use_fates_fixed_biogeog = .true.
@@ -136,6 +136,7 @@ suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
 hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
+paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
@@ -174,6 +175,7 @@ finidat = '/global/homes/c/cdkoven/scratch/e3sm_scratch/pm-cpu/fates_4x5_nocomp_
 fates_parteh_mode = 2
 nu_com = 'RD'
 hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
+paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 EOF
 
 fi
