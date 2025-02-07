@@ -7,14 +7,14 @@ cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
 #STAGE=AD_SPINUP
-STAGE=POSTAD_SPINUP
-#STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
+#STAGE=POSTAD_SPINUP
+STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3
+    SETUP_CASE=fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3_shijiefix
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu_ddd3
+    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu_ddd3_shijiefix
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
     SETUP_CASE=fates_4x5_nocomp_0009_translanduse_fromconst1850lu
 fi
@@ -119,7 +119,7 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
 
     cat > user_nl_elm <<EOF
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
-finidat='/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3_6a011c67ac_cbfefff9.elm.r.0130-01-01-00000.nc'
+finidat='/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3_shijiefix_6a011c67ac_93ec1d65.elm.r.0180-01-01-00000.nc'
 use_fates_luh = .true.
 use_fates_nocomp = .true.
 use_fates_fixed_biogeog = .true.
@@ -139,17 +139,23 @@ hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATE
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 EOF
 
+# make the seed rain amount nonzero for grasses (c4 and cool c3 only)
+/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 12 --var fates_recruit_seed_supplement --val 1e-3
+/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}_mod.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 11 --var fates_recruit_seed_supplement --val 1e-3 --O
+
+
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
 
-    ./xmlchange RUN_STARTDATE=1700-01-01
-    ./xmlchange RESUBMIT=1
+    ./xmlchange RUN_STARTDATE=1850-01-01
+    ./xmlchange RESUBMIT=5
     ./xmlchange ELM_ACCELERATED_SPINUP=off
-    ./xmlchange NTASKS=-3
-    ./xmlchange STOP_N=10
+    ./xmlchange NTASKS=-5
+    ./xmlchange STOP_N=20
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
-    ./xmlchange JOB_QUEUE=regular
+    ./xmlchange JOB_QUEUE=debug
     ./xmlchange CCSM_CO2_PPMV=287.
+    ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
 
     ./xmlchange DATM_MODE=CLMCRUNCEP
     ./xmlchange DATM_CLMNCEP_YR_START=1901
@@ -171,7 +177,7 @@ use_century_decomp = .true.
 spinup_state = 0
 suplphos = 'ALL'
 suplnitro = 'ALL'
-finidat = '/global/homes/c/cdkoven/scratch/e3sm_scratch/pm-cpu/fates_4x5_nocomp_0006_bgcpostadspinup_v5noseedrain_9b13649222_c3966e87/run/fates_4x5_nocomp_0006_bgcpostadspinup_v5noseedrain_9b13649222_c3966e87.elm.r.0006-01-01-00000.nc'
+finidat = '/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu_ddd3_shijiefix_6a011c67ac_5cb6f79b.elm.r.0021-01-01-00000.nc'
 fates_parteh_mode = 2
 nu_com = 'RD'
 hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
@@ -183,4 +189,4 @@ fi
 
 ./case.setup
 ./case.build
-./case.submit
+#./case.submit
