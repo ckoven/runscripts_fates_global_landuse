@@ -7,8 +7,8 @@ cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
 #STAGE=AD_SPINUP
-STAGE=POSTAD_SPINUP
-#STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
+#STAGE=POSTAD_SPINUP
+STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
@@ -16,7 +16,7 @@ if [ "$STAGE" = "AD_SPINUP" ]; then
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_v5noseedrain_ddd3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_translanduse1750_frompotentialveg_v6noseedrain
+    SETUP_CASE=f45_1800translanduse_frompotentialveg_ddd3
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -139,7 +139,7 @@ EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
 
-    ./xmlchange RUN_STARTDATE=1750-01-01
+    ./xmlchange RUN_STARTDATE=1800-01-01
     ./xmlchange RESUBMIT=1
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
@@ -172,7 +172,7 @@ suplphos = 'ALL'
 suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
-finidat = '/global/homes/c/cdkoven/scratch/e3sm_scratch/pm-cpu/fates_4x5_nocomp_0006_bgcpostadspinup_v5noseedrain_9b13649222_c3966e87/run/fates_4x5_nocomp_0006_bgcpostadspinup_v5noseedrain_9b13649222_c3966e87.elm.r.0006-01-01-00000.nc'
+finidat = '/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcpostadspinup_v5noseedrain_ddd3_6a011c67ac_cbfefff9.elm.r.0041-01-01-00000.nc'
 hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 EOF

@@ -140,8 +140,8 @@ paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_dd
 EOF
 
 # make the seed rain amount nonzero for grasses (c4 and cool c3 only)
-/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 12 --var fates_recruit_seed_supplement --val 1e-3
-/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}_mod.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 11 --var fates_recruit_seed_supplement --val 1e-3 --O
+# /global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 12 --var fates_recruit_seed_supplement --val 1e-3
+# /global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}_mod.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 11 --var fates_recruit_seed_supplement --val 1e-3 --O
 
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
@@ -167,7 +167,7 @@ flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_ma
 use_fates_luh = .true.
 use_fates_nocomp = .true.
 use_fates_fixed_biogeog = .true.
-fates_paramfile = '${basedir}/${CASE_NAME}/fates_params_default_${GITHASH2}_mod.nc'
+fates_paramfile = '${basedir}/${CASE_NAME}/fates_params_default_${GITHASH2}.nc'
 use_fates_sp = .false.
 fates_spitfire_mode = 1
 fates_harvest_mode = 'luhdata_area'
