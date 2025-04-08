@@ -6,17 +6,17 @@ GITHASH1=`git log -n 1 --format=%h`
 cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
-#STAGE=AD_SPINUP
+STAGE=AD_SPINUP
 #STAGE=POSTAD_SPINUP
-STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
+#STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_ddd3
+    SETUP_CASE=f45_0013_ADspinup_potveg_gswp3
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_v5noseedrain_ddd3
+    SETUP_CASE=f45_0010_postadspinup_potveg
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=f45_1800translanduse_frompotentialveg_ddd3
+    SETUP_CASE=f45_0010_1800translanduse_frompotveg
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -26,7 +26,7 @@ cd $basedir
 export RES=f45_f45
 project=m2467
 
-./create_newcase -case ${CASE_NAME} -res ${RES} -compset IELMFATES -mach pm-cpu -project $project
+./create_newcase -case ${CASE_NAME} -res ${RES} -compset I1850GSWCNPRDCTCBCTOP -mach pm-cpu -project $project
 
 
 cd $CASE_NAME
@@ -35,6 +35,8 @@ ncgen -o fates_params_default_${GITHASH2}.nc ${SRCDIR}/external_models/fates/par
 
 # add more age bins to history output
 /global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --O --var=fates_history_ageclass_bin_edges --val=0,1,2,5,10,20,50,100,200 --changeshape
+
+/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --O --var=fates_landuse_logging_event_code --val=3
 
 # make the seed rain amount nonzero for grasses (c4 and cool c3 only)
 #/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}_mod.nc --pft 12 --var fates_recruit_seed_supplement --val 1e-3
@@ -61,16 +63,17 @@ if [ "$STAGE" = "AD_SPINUP"  ]; then
     ./xmlchange STOP_N=30
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
-    ./xmlchange JOB_QUEUE=regular
-    ./xmlchange JOB_WALLCLOCK_TIME=06:00:00
+    ./xmlchange JOB_QUEUE=debug
+    ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
     ./xmlchange CCSM_CO2_PPMV=287.
     
-    ./xmlchange DATM_MODE=CLMCRUNCEP
+    #./xmlchange DATM_MODE=CLMCRUNCEP
     ./xmlchange DATM_CLMNCEP_YR_START=1901
     ./xmlchange DATM_CLMNCEP_YR_END=1920
     ./xmlchange DATM_PRESAERO=clim_1850
 
     cat > user_nl_elm <<EOF
+fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_4x5_simyr2000_c130927.nc'
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
 use_fates_luh = .true.
 use_fates_nocomp = .true.
@@ -83,14 +86,16 @@ use_fates_potentialveg = .true.
 fluh_timeseries = ''
 use_century_decomp = .true.
 spinup_state = 1
-suplphos = 'ALL'
-suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
-finidat = '/global/homes/c/cdkoven/scratch/e3sm_scratch/pm-cpu/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_6a011c67ac_96ae462e/run/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_6a011c67ac_96ae462e.elm.r.0341-01-01-00000.nc'
+fates_radiation_model = 'twostream'
+fates_leafresp_model = 'atkin2017'
 EOF
-
+#suplphos = 'ALL'
+#suplnitro = 'ALL'
+#fates_parteh_mode = 2
+    
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
 
     ./xmlchange RUN_STARTDATE=0001-01-01
@@ -135,6 +140,8 @@ suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
+fates_radiation_model = 'twostream'
+fates_leafresp_model = 'atkin2017'
 EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
@@ -175,6 +182,8 @@ nu_com = 'RD'
 finidat = '/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcpostadspinup_v5noseedrain_ddd3_6a011c67ac_cbfefff9.elm.r.0041-01-01-00000.nc'
 hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
+fates_radiation_model = 'twostream'
+fates_leafresp_model = 'atkin2017'
 EOF
 
 fi
