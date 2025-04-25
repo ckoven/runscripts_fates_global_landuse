@@ -6,15 +6,15 @@ GITHASH1=`git log -n 1 --format=%h`
 cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
-STAGE=AD_SPINUP
-#STAGE=POSTAD_SPINUP
+#STAGE=AD_SPINUP
+STAGE=POSTAD_SPINUP
 #STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
     SETUP_CASE=f45_0012_adspinup_const1850LU_gswp3
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu_ddd3_shijiefix
+    SETUP_CASE=f45_0014_postadspinup_const1850LU_gswp3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
     SETUP_CASE=fates_4x5_nocomp_0009_translanduse_fromconst1850lu
 fi
@@ -103,12 +103,13 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     ./xmlchange RESUBMIT=0
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
-    ./xmlchange STOP_N=20
+    ./xmlchange STOP_N=30
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
     ./xmlchange JOB_QUEUE=debug
     ./xmlchange CCSM_CO2_PPMV=287.
     ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
+    ./xmlchange -id ELM_BLDNML_OPTS -val "-bgc fates -no-megan -no-drydep"
 
     # ./xmlchange RUN_TYPE=hybrid
     # ./xmlchange RUN_REFCASE=fates_e3sm_perlmttr_fullmodel_4x5_test_landuse_nocomp_startfrompotentialveg_0006_bgcspinup_v1_377b2d31d7_ed007e30
@@ -117,15 +118,16 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     # ./xmlchange RUN_REFDATE=0261-01-01
     # ./xmlchange GET_REFCASE=FALSE
 
-    ./xmlchange DATM_MODE=CLMCRUNCEP
+    #./xmlchange DATM_MODE=CLMCRUNCEP
     ./xmlchange DATM_CLMNCEP_YR_START=1901
     ./xmlchange DATM_CLMNCEP_YR_END=1920
     ./xmlchange DATM_PRESAERO=clim_1850
 
 
     cat > user_nl_elm <<EOF
+fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_4x5_simyr2000_c130927.nc'
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
-finidat='/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_ddd3_shijiefix_6a011c67ac_93ec1d65.elm.r.0180-01-01-00000.nc'
+finidat='/global/homes/c/cdkoven/scratch/restfiles/f45_0012_adspinup_const1850LU_gswp3_d3b202343c_7e2e25a0.elm.r.0326-01-01-00000.nc'
 use_fates_luh = .true.
 use_fates_nocomp = .true.
 use_fates_fixed_biogeog = .true.
@@ -141,7 +143,7 @@ suplphos = 'ALL'
 suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
-hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
+hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 fates_radiation_model = 'twostream'
 fates_leafresp_model = 'atkin2017'
@@ -165,7 +167,7 @@ elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
     ./xmlchange CCSM_CO2_PPMV=287.
     ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
 
-    ./xmlchange DATM_MODE=CLMCRUNCEP
+    #./xmlchange DATM_MODE=CLMCRUNCEP
     ./xmlchange DATM_CLMNCEP_YR_START=1901
     ./xmlchange DATM_CLMNCEP_YR_END=1920
     ./xmlchange DATM_PRESAERO=clim_1850
@@ -185,7 +187,7 @@ use_century_decomp = .true.
 spinup_state = 0
 suplphos = 'ALL'
 suplnitro = 'ALL'
-finidat = '/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcpostadspinup_noseedrain_const1850lu_ddd3_shijiefix_6a011c67ac_5cb6f79b.elm.r.0021-01-01-00000.nc'
+finidat = '/global/homes/c/cdkoven/scratch/restfiles/'
 fates_parteh_mode = 2
 nu_com = 'RD'
 hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
