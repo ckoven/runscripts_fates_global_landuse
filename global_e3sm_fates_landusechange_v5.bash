@@ -16,7 +16,7 @@ if [ "$STAGE" = "AD_SPINUP" ]; then
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     SETUP_CASE=f45_0015_postadspinup_potveg_gswp3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=f45_0016_1800translanduse_frompotveg
+    SETUP_CASE=f45_0017_1750translanduse_frompotveg
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -150,7 +150,7 @@ EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
 
-    ./xmlchange RUN_STARTDATE=1800-01-01
+    ./xmlchange RUN_STARTDATE=1751-01-01
     ./xmlchange RESUBMIT=1
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
