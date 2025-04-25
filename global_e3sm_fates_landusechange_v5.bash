@@ -7,8 +7,8 @@ cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
 #STAGE=AD_SPINUP
-STAGE=POSTAD_SPINUP
-#STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
+#STAGE=POSTAD_SPINUP
+STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
@@ -16,7 +16,7 @@ if [ "$STAGE" = "AD_SPINUP" ]; then
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     SETUP_CASE=f45_0015_postadspinup_potveg_gswp3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=f45_0010_1800translanduse_frompotveg
+    SETUP_CASE=f45_0016_1800translanduse_frompotveg
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -154,12 +154,13 @@ elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
     ./xmlchange RESUBMIT=1
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
-    ./xmlchange STOP_N=10
+    ./xmlchange STOP_N=30
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
-    ./xmlchange JOB_QUEUE=regular
-    ./xmlchange JOB_WALLCLOCK_TIME=06:00:00
+    ./xmlchange JOB_QUEUE=debug
+    ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
     ./xmlchange CCSM_CO2_PPMV=287.
+    ./xmlchange -id ELM_BLDNML_OPTS -val "-bgc fates -no-megan -no-drydep"
 
     #./xmlchange DATM_MODE=CLMCRUNCEP
     ./xmlchange DATM_CLMNCEP_YR_START=1901
@@ -184,8 +185,8 @@ suplphos = 'ALL'
 suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
-finidat = '/global/homes/c/cdkoven/scratch/restfiles/'
-hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
+finidat = '/global/homes/c/cdkoven/scratch/restfiles/f45_0015_postadspinup_potveg_gswp3_d3b202343c_ae17acb2.elm.r.0031-01-01-00000.nc'
+hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 fates_radiation_model = 'twostream'
 fates_leafresp_model = 'atkin2017'
