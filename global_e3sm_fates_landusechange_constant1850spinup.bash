@@ -6,17 +6,17 @@ GITHASH1=`git log -n 1 --format=%h`
 cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
-#STAGE=AD_SPINUP
-STAGE=POSTAD_SPINUP
+STAGE=AD_SPINUP
+#STAGE=POSTAD_SPINUP
 #STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
-    SETUP_CASE=f45_0012_adspinup_const1850LU_gswp3
+    SETUP_CASE=f45_0023_adspinup_const1850LU_grassallocmod2
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     SETUP_CASE=f45_0014_postadspinup_const1850LU_gswp3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
-    SETUP_CASE=fates_4x5_nocomp_0009_translanduse_fromconst1850lu
+    SETUP_CASE=f45_0018_translanduse_fromconst1850lu
 fi
     
 CASE_NAME=${SETUP_CASE}_${GITHASH1}_${GITHASH2}
@@ -56,7 +56,7 @@ if [ "$STAGE" = "AD_SPINUP"  ]; then
 
     ./xmlchange RUN_STARTDATE=0001-01-01
     #./xmlchange RUN_STARTDATE=0100-01-01  ## because taking a prior run's restart file in AD mode, so need to circumvent the 20 year thing
-    ./xmlchange RESUBMIT=1
+    ./xmlchange RESUBMIT=3
     ./xmlchange ELM_ACCELERATED_SPINUP=on
     ./xmlchange -id ELM_BLDNML_OPTS -val "-bgc fates -no-megan -no-drydep -bgc_spinup on"
     ./xmlchange NTASKS=-5
@@ -64,7 +64,7 @@ if [ "$STAGE" = "AD_SPINUP"  ]; then
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
     ./xmlchange JOB_QUEUE=regular
-    ./xmlchange JOB_WALLCLOCK_TIME=12:00:00
+    ./xmlchange JOB_WALLCLOCK_TIME=20:00:00
     ./xmlchange CCSM_CO2_PPMV=287.
     
     #./xmlchange DATM_MODE=CLMCRUNCEP
@@ -72,6 +72,8 @@ if [ "$STAGE" = "AD_SPINUP"  ]; then
     ./xmlchange DATM_CLMNCEP_YR_END=1920
     ./xmlchange DATM_PRESAERO=clim_1850
 
+    ./xmlchange DIN_LOC_ROOT=/dvs_ro/cfs/cdirs/e3sm/inputdata
+    
     cat > user_nl_elm <<EOF
 fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_4x5_simyr2000_c130927.nc'
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
@@ -90,11 +92,13 @@ suplphos = 'ALL'
 suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
-hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'  
+hist_fincl1 = 'FATES_SECONDARY_AREA_ANTHRO_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'  
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 fates_radiation_model = 'twostream'
-fates_leafresp_model = 'atkin2017'
+fates_leafresp_model = 'ryan1991'
 EOF
+## NOTE TO SWITCH RESP MODEL TO WORK WITH ROSIES PARAM FILE
+#fates_leafresp_model = 'atkin2017'
 #finidat = '/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_6a011c67ac_cbfefff9.elm.r.0231-01-01-00000.nc'
     
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
@@ -123,7 +127,8 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     ./xmlchange DATM_CLMNCEP_YR_END=1920
     ./xmlchange DATM_PRESAERO=clim_1850
 
-
+    ./xmlchange DIN_LOC_ROOT=/dvs_ro/cfs/cdirs/e3sm/inputdata
+    
     cat > user_nl_elm <<EOF
 fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_4x5_simyr2000_c130927.nc'
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
@@ -143,10 +148,10 @@ suplphos = 'ALL'
 suplnitro = 'ALL'
 fates_parteh_mode = 2
 nu_com = 'RD'
-hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'
+hist_fincl1 = 'FATES_SECONDARY_AREA_ANTHRO_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 fates_radiation_model = 'twostream'
-fates_leafresp_model = 'atkin2017'
+fates_leafresp_model = 'ryan1991'
 EOF
 
 # make the seed rain amount nonzero for grasses (c4 and cool c3 only)
@@ -156,23 +161,28 @@ EOF
 
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
 
-    ./xmlchange RUN_STARTDATE=1850-01-01
+    ./xmlchange RUN_STARTDATE=1851-01-01
     ./xmlchange RESUBMIT=5
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
-    ./xmlchange STOP_N=20
+    ./xmlchange STOP_N=30
     ./xmlchange REST_N=5
     ./xmlchange STOP_OPTION=nyears
     ./xmlchange JOB_QUEUE=debug
     ./xmlchange CCSM_CO2_PPMV=287.
     ./xmlchange JOB_WALLCLOCK_TIME=00:30:00
 
+    ./xmlchange -id ELM_BLDNML_OPTS -val "-bgc fates -no-megan -no-drydep"
+
     #./xmlchange DATM_MODE=CLMCRUNCEP
     ./xmlchange DATM_CLMNCEP_YR_START=1901
     ./xmlchange DATM_CLMNCEP_YR_END=1920
     ./xmlchange DATM_PRESAERO=clim_1850
 
+    ./xmlchange DIN_LOC_ROOT=/dvs_ro/cfs/cdirs/e3sm/inputdata
+    
     cat > user_nl_elm <<EOF
+fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_4x5_simyr2000_c130927.nc'
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
 use_fates_luh = .true.
 use_fates_nocomp = .true.
@@ -187,13 +197,13 @@ use_century_decomp = .true.
 spinup_state = 0
 suplphos = 'ALL'
 suplnitro = 'ALL'
-finidat = '/global/homes/c/cdkoven/scratch/restfiles/'
+finidat = '/global/homes/c/cdkoven/scratch/restfiles/f45_0014_postadspinup_const1850LU_gswp3_d3b202343c_ae17acb2.elm.r.0031-01-01-00000.nc'
 fates_parteh_mode = 2
 nu_com = 'RD'
-hist_fincl1 = 'FATES_SECONDARY_ANTHRODISTAGE_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU'
+hist_fincl1 = 'FATES_SECONDARY_AREA_ANTHRO_AP','FATES_SECONDARY_AREA_AP','FATES_PRIMARY_AREA_AP','FATES_NPP_LU','FATES_GPP_LU','PROD10C','PROD100C','PRODUCT_CLOSS'
 paramfile = '/global/homes/c/cdkoven/scratch/inputdata/clm_params_c211124_mod_ddefold.nc'
 fates_radiation_model = 'twostream'
-fates_leafresp_model = 'atkin2017'
+fates_leafresp_model = 'ryan1991'
 EOF
 
 fi
