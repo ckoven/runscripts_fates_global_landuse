@@ -6,15 +6,15 @@ GITHASH1=`git log -n 1 --format=%h`
 cd external_models/fates
 GITHASH2=`git log -n 1 --format=%h`
 
-STAGE=AD_SPINUP
-#STAGE=POSTAD_SPINUP
+#STAGE=AD_SPINUP
+STAGE=POSTAD_SPINUP
 #STAGE=TRANSIENT_LU_CONSTANT_CO2_CLIMATE
 #STAGE=TRANSIENT_LU_TRANSIENT_CO2_CLIMATE
 
 if [ "$STAGE" = "AD_SPINUP" ]; then
-    SETUP_CASE=f45_0028_adspinup_const2000LUH3_grassallocmod2_seedrain1eminus3_cropfix_grazing1
+    SETUP_CASE=f45_0029_adspinup_const1850LUH3
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
-    SETUP_CASE=f45_0014_postadspinup_const1850LU_gswp3
+    SETUP_CASE=f45_0031_postadspinup_const1850LUH3
 elif [ "$STAGE" = "TRANSIENT_LU_CONSTANT_CO2_CLIMATE" ]; then
     SETUP_CASE=f45_0018_translanduse_fromconst1850lu
 fi
@@ -39,8 +39,9 @@ ncgen -o fates_params_default_${GITHASH2}.nc ${SRCDIR}/external_models/fates/par
 # log daily
 /global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --O --var=fates_landuse_logging_event_code --val=3
 
-# make the seed rain amount nonzero for grasses (cool c3 only)
-/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --pft 13 --var fates_recruit_seed_supplement --val 1e-3 --O
+# make the seed rain amount nonzero for grasses (cool c3 and c4 grasses)
+/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --pft 13 --var fates_recruit_seed_supplement --val 1e-4 --O
+/global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --pft 14 --var fates_recruit_seed_supplement --val 1e-4 --O
 
 #turn on grazing
 /global/homes/c/cdkoven/E3SM/components/elm/src/external_models/fates/tools/modify_fates_paramfile.py --fin=fates_params_default_${GITHASH2}.nc --fout=fates_params_default_${GITHASH2}.nc --O --var fates_landuse_grazing_rate --val 0,0,.01,.02,0
@@ -70,15 +71,15 @@ if [ "$STAGE" = "AD_SPINUP"  ]; then
     
     #./xmlchange DATM_MODE=CLMCRUNCEP
 
-    # ./xmlchange CCSM_CO2_PPMV=287.
-    # ./xmlchange DATM_CLMNCEP_YR_START=1901
-    # ./xmlchange DATM_CLMNCEP_YR_END=1920
-    # ./xmlchange DATM_PRESAERO=clim_1850
+    ./xmlchange CCSM_CO2_PPMV=287.
+    ./xmlchange DATM_CLMNCEP_YR_START=1901
+    ./xmlchange DATM_CLMNCEP_YR_END=1920
+    ./xmlchange DATM_PRESAERO=clim_1850
 
-    ./xmlchange CCSM_CO2_PPMV=379.
-    ./xmlchange DATM_CLMNCEP_YR_START=1991
-    ./xmlchange DATM_CLMNCEP_YR_END=2010
-    ./xmlchange DATM_PRESAERO=clim_2000
+    # ./xmlchange CCSM_CO2_PPMV=379.
+    # ./xmlchange DATM_CLMNCEP_YR_START=1991
+    # ./xmlchange DATM_CLMNCEP_YR_END=2010
+    # ./xmlchange DATM_PRESAERO=clim_2000
 
     ./xmlchange DIN_LOC_ROOT=/dvs_ro/cfs/cdirs/e3sm/inputdata
     
@@ -93,7 +94,7 @@ use_fates_sp = .false.
 fates_spitfire_mode = 1
 fates_harvest_mode = 'luhdata_area'
 use_fates_potentialveg = .false.
-fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH3_states_transitions_management.timeseries_4x5_hist_steadystate_2000_2025-05-22.nc'
+fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH3_states_transitions_management.timeseries_4x5_hist_steadystate_1850_2025-05-22.nc'
 use_century_decomp = .true.
 spinup_state = 1
 suplphos = 'ALL'
@@ -110,15 +111,15 @@ EOF
 #finidat = '/global/homes/c/cdkoven/scratch/restfiles/fates_4x5_nocomp_0009_bgcspinup_noseedrain_frombareground_const1850lu_6a011c67ac_cbfefff9.elm.r.0231-01-01-00000.nc'
 #fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_1850_21oct2024.nc'
 #fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_2000_2024-10-30.nc'
-    
+#fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH3_states_transitions_management.timeseries_4x5_hist_steadystate_2000_2025-05-22.nc'
 elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
 
     ./xmlchange RUN_STARTDATE=0001-01-01
     ./xmlchange RESUBMIT=0
     ./xmlchange ELM_ACCELERATED_SPINUP=off
     ./xmlchange NTASKS=-5
-    ./xmlchange STOP_N=30
-    ./xmlchange REST_N=5
+    ./xmlchange STOP_N=1
+    ./xmlchange REST_N=1
     ./xmlchange STOP_OPTION=nyears
     ./xmlchange JOB_QUEUE=debug
     ./xmlchange CCSM_CO2_PPMV=287.
@@ -142,7 +143,7 @@ elif [ "$STAGE" = "POSTAD_SPINUP" ]; then
     cat > user_nl_elm <<EOF
 fsurdat = '/global/cfs/cdirs/e3sm/inputdata/lnd/clm2/surfdata_map/surfdata_4x5_simyr2000_c130927.nc'
 flandusepftdat = '/global/homes/c/cdkoven/scratch/inputdata/fates_landuse_pft_map_4x5_20240206.nc'
-finidat='/global/homes/c/cdkoven/scratch/restfiles/f45_0012_adspinup_const1850LU_gswp3_d3b202343c_7e2e25a0.elm.r.0326-01-01-00000.nc'
+finidat='/global/homes/c/cdkoven/scratch/restfiles/f45_0029_adspinup_const1850LUH3_5fd137b0c9_13268f7a.elm.r.0286-01-01-00000.nc'
 use_fates_luh = .true.
 use_fates_nocomp = .true.
 use_fates_fixed_biogeog = .true.
@@ -151,7 +152,7 @@ use_fates_sp = .false.
 fates_spitfire_mode = 1
 fates_harvest_mode = 'luhdata_area'
 use_fates_potentialveg = .false.
-fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH2_states_transitions_management.timeseries_4x5_hist_steadystate_1850_21oct2024.nc'
+fluh_timeseries = '/global/homes/c/cdkoven/scratch/inputdata/LUH3_states_transitions_management.timeseries_4x5_hist_steadystate_1850_2025-05-22.nc'
 use_century_decomp = .true.
 spinup_state = 0
 suplphos = 'ALL'
